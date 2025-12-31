@@ -9,6 +9,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
+  .resize-handle {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  background: #8b9dfc;
+  border-radius: 50%;
+  cursor: se-resize;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+.resize-handle:hover {
+  background: #6366f1;
+}
+
   .delete-btn {
   position: absolute;
   top: -10px;
@@ -182,6 +198,33 @@
 
     document.getElementById("imageUrl").value = "";
   }
+  function addResize(div, img) {
+  const handle = document.createElement("div");
+  handle.className = "resize-handle";
+  div.appendChild(handle);
+
+  let startX, startWidth;
+
+  handle.onmousedown = e => {
+    e.stopPropagation();
+    startX = e.clientX;
+    startWidth = img.offsetWidth;
+
+    document.onmousemove = e => {
+      const newWidth = startWidth + (e.clientX - startX);
+      if (newWidth > 100) {
+        img.style.width = newWidth + "px";
+      }
+    };
+
+    document.onmouseup = () => {
+      document.onmousemove = null;
+      document.onmouseup = null;
+      saveBoard();
+    };
+  };
+}
+
 
   function uploadImage(event) {
     const file = event.target.files[0];
@@ -200,13 +243,16 @@
 
   const img = document.createElement("img");
   img.src = src;
+  img.style.width = "190px";
 
   div.appendChild(img);
   addDeleteButton(div);
+  addResize(div, img);
   makeDraggable(div);
   board.appendChild(div);
   saveBoard();
 }
+
 
 
   function addText() {
@@ -247,15 +293,18 @@
       };
     };
   }
-
-  function downloadBoard() {
-    html2canvas(board).then(canvas => {
-      const link = document.createElement("a");
-      link.download = "vision-board.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+function loadBoard() {
+  const data = localStorage.getItem("visionBoard");
+  if (data) {
+    board.innerHTML = data;
+    document.querySelectorAll(".item").forEach(item => {
+      makeDraggable(item);
+      addDeleteButton(item);
+      const img = item.querySelector("img");
+      if (img) addResize(item, img);
     });
   }
+}
 
   function addDeleteButton(div) {
   const btn = document.createElement("button");
