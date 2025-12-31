@@ -198,6 +198,18 @@
 
     document.getElementById("imageUrl").value = "";
   }
+  function downloadBoard() {
+  html2canvas(board, {
+    backgroundColor: null,
+    scale: 2
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "vision-board.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+}
+
   function addResize(div, img) {
   const handle = document.createElement("div");
   handle.className = "resize-handle";
