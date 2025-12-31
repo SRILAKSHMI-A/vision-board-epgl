@@ -9,6 +9,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
+  .delete-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #ff5f7a;
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+}
+
+.delete-btn:hover {
+  background: #e11d48;
+}
+
   body {
     margin: 0;
     font-family: "Poppins", sans-serif;
@@ -173,35 +193,40 @@
   }
 
   function placeImage(src) {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.style.top = "120px";
-    div.style.left = "120px";
+  const div = document.createElement("div");
+  div.className = "item";
+  div.style.top = "120px";
+  div.style.left = "120px";
 
-    const img = document.createElement("img");
-    img.src = src;
+  const img = document.createElement("img");
+  img.src = src;
 
-    div.appendChild(img);
-    makeDraggable(div);
-    board.appendChild(div);
-    saveBoard();
-  }
+  div.appendChild(img);
+  addDeleteButton(div);
+  makeDraggable(div);
+  board.appendChild(div);
+  saveBoard();
+}
+
 
   function addText() {
-    const text = document.getElementById("textGoal").value.trim();
-    if (!text) return;
+  const text = document.getElementById("textGoal").value.trim();
+  if (!text) return;
 
-    const div = document.createElement("div");
-    div.className = "item text-item";
-    div.innerText = text;
-    div.style.top = "200px";
-    div.style.left = "200px";
+  const div = document.createElement("div");
+  div.className = "item text-item";
+  div.innerText = text;
+  div.style.top = "200px";
+  div.style.left = "200px";
 
-    makeDraggable(div);
-    board.appendChild(div);
-    saveBoard();
-    document.getElementById("textGoal").value = "";
-  }
+  addDeleteButton(div);
+  makeDraggable(div);
+  board.appendChild(div);
+  saveBoard();
+
+  document.getElementById("textGoal").value = "";
+}
+
 
   function makeDraggable(el) {
     let offsetX = 0, offsetY = 0;
@@ -232,6 +257,20 @@
     });
   }
 
+  function addDeleteButton(div) {
+  const btn = document.createElement("button");
+  btn.innerHTML = "✕";
+  btn.className = "delete-btn";
+
+  btn.onclick = (e) => {
+    e.stopPropagation();
+    div.remove();
+    saveBoard();
+  };
+
+  div.appendChild(btn);
+}
+
   function saveBoard() {
     localStorage.setItem("visionBoard", board.innerHTML);
   }
@@ -240,7 +279,10 @@
     const data = localStorage.getItem("visionBoard");
     if (data) {
       board.innerHTML = data;
-      document.querySelectorAll(".item").forEach(makeDraggable);
+      document.querySelectorAll(".item").forEach(item => {
+  makeDraggable(item);
+  addDeleteButton(item);
+});
     }
   }
 
